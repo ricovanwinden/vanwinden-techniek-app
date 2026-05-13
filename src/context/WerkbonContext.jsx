@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 
-export const TEAMLEDEN = ['Owen', 'Gurkan']
+export const TEAMLEDEN = ['Owen', 'Gurkan', 'Rico']
 
 const WerkbonContext = createContext(null)
 
@@ -25,6 +25,8 @@ function bonVanDB(row) {
     privaatVoertuig: row.privaat_voertuig,
     kmTotaal: Number(row.km_totaal) || 0,
     fotos: row.fotos || [],
+    factuurOntvangen: row.factuur_ontvangen || false,
+    factuurGestuurd: row.factuur_gestuurd || false,
   }
 }
 
@@ -102,6 +104,12 @@ export function WerkbonProvider({ children }) {
     setBons(prev => prev.filter(b => b.id !== id))
   }
 
+  async function updateBonFactuur(id, veld, waarde) {
+    const kolom = veld === 'factuurOntvangen' ? 'factuur_ontvangen' : 'factuur_gestuurd'
+    await supabase.from('werkbonnen').update({ [kolom]: waarde }).eq('id', id)
+    setBons(prev => prev.map(b => b.id === id ? { ...b, [veld]: waarde } : b))
+  }
+
   async function voegAgendaItemToe(item) {
     const { data } = await supabase.from('agenda_items').insert([{
       datum: item.datum,
@@ -136,7 +144,7 @@ export function WerkbonProvider({ children }) {
   return (
     <WerkbonContext.Provider value={{
       bons, agendaItems, planningItems, laden,
-      voegBonToe, verwijderBon,
+      voegBonToe, verwijderBon, updateBonFactuur,
       voegAgendaItemToe, verwijderAgendaItem,
       voegPlanningItemToe, verwijderPlanningItem,
     }}>

@@ -12,6 +12,7 @@ export default function App() {
       <WerkbonProvider>
         <div className="app">
           <header className="topbar">
+            <img src="/logo.png" alt="VanWinden Techniek" className="topbar-logo" />
             <h1>VanWinden Techniek</h1>
           </header>
           <main className="content">

@@ -18,7 +18,7 @@ function formatDatum(d) {
 }
 
 export default function Overzicht() {
-  const { bons, laden, verwijderBon } = useWerkbonnen()
+  const { bons, laden, verwijderBon, updateBonFactuur } = useWerkbonnen()
   const [ingelogd, setIngelogd] = useState(false)
   const [wachtwoord, setWachtwoord] = useState('')
   const [fout, setFout] = useState(false)
@@ -157,6 +157,18 @@ export default function Overzicht() {
                           )}
                         </div>
                         {bon.omschrijving && <p className="overzicht-omschrijving">{bon.omschrijving}</p>}
+                        <div className="factuur-vinkjes">
+                          <label className="factuur-vinkje">
+                            <input type="checkbox" checked={bon.factuurOntvangen || false}
+                              onChange={e => updateBonFactuur(bon.id, 'factuurOntvangen', e.target.checked)} />
+                            Factuur ontvangen
+                          </label>
+                          <label className="factuur-vinkje">
+                            <input type="checkbox" checked={bon.factuurGestuurd || false}
+                              onChange={e => updateBonFactuur(bon.id, 'factuurGestuurd', e.target.checked)} />
+                            Factuur gestuurd
+                          </label>
+                        </div>
                         {verwijderBevestig === bon.id
                           ? <BevestigVerwijder
                               onJa={() => { verwijderBon(bon.id); setVerwijderBevestig(null) }}

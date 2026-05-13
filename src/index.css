@@ -49,6 +49,20 @@ body {
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.topbar-logo {
+  height: 32px;
+  width: 32px;
+  object-fit: contain;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 .topbar h1 {
   font-size: 18px;
   font-weight: 700;
@@ -790,6 +804,31 @@ select {
   font-weight: 600;
   color: var(--danger);
   flex-wrap: wrap;
+}
+
+/* ── Factuur vinkjes ──────────────────────────────────────── */
+.factuur-vinkjes {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.factuur-vinkje {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.factuur-vinkje input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--success);
+  flex-shrink: 0;
 }
 
 /* ── Validatie waarschuwing ───────────────────────────────── */
