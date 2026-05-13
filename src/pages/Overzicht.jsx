@@ -112,13 +112,17 @@ export default function Overzicht() {
                   <span className="overzicht-datum">{formatDatum(bon.datum)}</span>
                   <span className="agenda-badge agenda-badge-bon">{bon.medewerker}</span>
                 </div>
+                {(bon.projectnummer || bon.werkbonnummer) && (
+                  <div className="overzicht-bon-nummers">
+                    {bon.projectnummer && <span className="bon-nr-badge">📋 {bon.projectnummer}</span>}
+                    {bon.werkbonnummer && <span className="bon-nr-badge bon-nr-wo">{bon.werkbonnummer}</span>}
+                  </div>
+                )}
                 <div className="overzicht-bon-titel">{bon.klant}</div>
                 <div className="overzicht-bon-detail">
-                  {bon.projectnummer && <span>#{bon.projectnummer}</span>}
-                  {bon.werkbonnummer && <span>WB: {bon.werkbonnummer}</span>}
                   <span>{(bon.uren || 0).toFixed(1)} uur</span>
                   {bon.kmTotaal > 0 && (
-                    <span>{bon.kmTotaal} km{bon.privaatVoertuig ? ' 🚗' : ''}</span>
+                    <span>{bon.kmTotaal} km{bon.privaatVoertuig ? ' 🚗' : ' 🏢'}</span>
                   )}
                 </div>
                 {bon.omschrijving && <p className="overzicht-omschrijving">{bon.omschrijving}</p>}

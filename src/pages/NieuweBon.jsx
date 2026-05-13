@@ -46,7 +46,7 @@ async function leesUitMetAI(base64, fileType) {
         role: 'user',
         content: [
           contentBlock,
-          { type: 'text', text: 'Dit is een werkbon. Zoek het projectnummer en werkbonnummer. Antwoord ALLEEN met JSON: {"projectnummer": "...", "werkbonnummer": "..."}. Gebruik null als niet gevonden.' }
+          { type: 'text', text: 'Dit is een werkbon. Zoek de Projectcode en het werkbonnummer (begint vaak met WO). Bijvoorbeeld: "Projectcode : 5095001S WO242131" → projectnummer = "5095001S", werkbonnummer = "WO242131". Antwoord ALLEEN met JSON: {"projectnummer": "...", "werkbonnummer": "..."}. Gebruik null als niet gevonden.' }
         ]
       }]
     })
