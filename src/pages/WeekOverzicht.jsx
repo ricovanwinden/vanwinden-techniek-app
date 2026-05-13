@@ -60,9 +60,34 @@ export default function WeekOverzicht() {
     const d = new Date(weekStart); d.setDate(d.getDate() + i); return toDateStr(d)
   }).includes(vandaagStr)
 
+  // Weeks that have planning items — for quick navigation
+  const planningWeken = [...new Set(planningItems.map(p => toDateStr(getMaandag(new Date(p.datum + 'T12:00:00')))))]
+    .sort()
+
+  function springNaarDatum(datumStr) {
+    setWeekStart(getMaandag(new Date(datumStr + 'T12:00:00')))
+    setToevoegenDag(null)
+  }
+
   return (
     <div className="page">
       <h2 className="page-title">Agenda</h2>
+
+      {planningWeken.length > 0 && (
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', alignSelf: 'center' }}>Planning:</span>
+          {planningWeken.map(w => {
+            const d = new Date(w + 'T12:00:00')
+            const label = d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' })
+            return (
+              <button key={w} className="btn btn-ghost btn-sm" onClick={() => springNaarDatum(w)}
+                style={{ fontSize: 12 }}>
+                🗓️ {label}
+              </button>
+            )
+          })}
+        </div>
+      )}
 
       <div className="week-nav">
         <button className="btn btn-ghost btn-sm" onClick={vorigeWeek}>‹ Vorige</button>
