@@ -72,10 +72,7 @@ export default function NieuweBon() {
   const [eindTijd, setEindTijd] = useState('17:00')
   const [pauze, setPauze] = useState(0)
 
-  const [vertrek, setVertrek] = useState('')
-  const [bestemming, setBestemming] = useState('')
   const [kilometers, setKilometers] = useState('')
-  const [heenTerug, setHeenTerug] = useState(true)
   const [privaatVoertuig, setPrivaatVoertuig] = useState(false)
 
   const [fotos, setFotos] = useState([])
@@ -90,7 +87,7 @@ export default function NieuweBon() {
   const werkbonRef = useRef()
 
   const uren = berekenUren(startTijd, eindTijd, pauze)
-  const kmTotaal = kilometers ? (heenTerug ? Number(kilometers) * 2 : Number(kilometers)) : 0
+  const kmTotaal = Number(kilometers) || 0
 
   function laadWerkbonDoc(e) {
     const file = e.target.files[0]
@@ -130,12 +127,12 @@ export default function NieuweBon() {
     voegBonToe({
       datum, medewerker, klant, projectnummer, werkbonnummer, omschrijving,
       startTijd, eindTijd, pauze, uren,
-      vertrek, bestemming, kilometers: Number(kilometers) || 0,
-      heenTerug, privaatVoertuig, kmTotaal,
+      kilometers: Number(kilometers) || 0,
+      privaatVoertuig, kmTotaal,
       fotos,
     })
     setKlant(''); setProjectnummer(''); setWerkbonnummer(''); setOmschrijving('')
-    setVertrek(''); setBestemming(''); setKilometers('')
+    setKilometers('')
     setFotos([]); setWerkbonDoc(null); setUitgelezen(false)
     setOpgeslagen(true)
     setTimeout(() => setOpgeslagen(false), 3000)
@@ -239,32 +236,23 @@ export default function NieuweBon() {
       <section className="card">
         <h3>Kilometers</h3>
         <div className="field">
-          <label className="field-label">Vertrekpunt</label>
-          <input type="text" value={vertrek} onChange={e => setVertrek(e.target.value)} placeholder="Adres of plaatsnaam" />
-        </div>
-        <div className="field">
-          <label className="field-label">Bestemming</label>
-          <input type="text" value={bestemming} onChange={e => setBestemming(e.target.value)} placeholder="Adres of plaatsnaam" />
-        </div>
-        <div className="field">
-          <label className="field-label">Afstand (km)</label>
+          <label className="field-label">Aantal kilometers</label>
           <input type="number" value={kilometers} onChange={e => setKilometers(e.target.value)} placeholder="0" min={0} />
         </div>
-        <div className="toggle-row">
-          <label className="toggle">
-            <input type="checkbox" checked={heenTerug} onChange={e => setHeenTerug(e.target.checked)} />
-            Heen en terug
-          </label>
-          <label className="toggle">
-            <input type="checkbox" checked={privaatVoertuig} onChange={e => setPrivaatVoertuig(e.target.checked)} />
-            Privé voertuig
-          </label>
+        <div className="auto-toggle">
+          <button
+            className={`auto-btn ${!privaatVoertuig ? 'active' : ''}`}
+            onClick={() => setPrivaatVoertuig(false)}
+          >
+            🏢 Zakelijk
+          </button>
+          <button
+            className={`auto-btn ${privaatVoertuig ? 'active' : ''}`}
+            onClick={() => setPrivaatVoertuig(true)}
+          >
+            🚗 Privé
+          </button>
         </div>
-        {kmTotaal > 0 && (
-          <div className="km-totaal">
-            Totaal: <strong>{kmTotaal} km</strong>{privaatVoertuig && ' · privé voertuig'}
-          </div>
-        )}
       </section>
 
       {/* Foto's */}

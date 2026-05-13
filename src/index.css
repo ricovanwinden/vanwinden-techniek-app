@@ -642,6 +642,34 @@ select {
   font-weight: 600;
 }
 
+/* ── Auto toggle ──────────────────────────────────────────── */
+.auto-toggle {
+  display: flex;
+  gap: 0;
+  margin-top: 12px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+}
+
+.auto-btn {
+  flex: 1;
+  padding: 12px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: #f3f4f6;
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+
+.auto-btn.active {
+  background: var(--primary);
+  color: white;
+}
+
 /* ── Overzicht ────────────────────────────────────────────── */
 .overzicht-header {
   display: flex;
