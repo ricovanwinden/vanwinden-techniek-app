@@ -792,6 +792,50 @@ select {
   flex-wrap: wrap;
 }
 
+/* ── Validatie waarschuwing ───────────────────────────────── */
+.validatie-waarschuwing {
+  background: #fff7ed;
+  border: 1.5px solid #fdba74;
+  color: #c2410c;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* ── Dag groep (overzicht) ────────────────────────────────── */
+.dag-groep {
+  border-top: 1px solid #f3f4f6;
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.dag-groep:first-of-type { border-top: none; padding-top: 0; }
+
+.dag-groep-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-bottom: 8px;
+}
+
+.dag-groep-datum {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.dag-groep-totalen {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
 /* ── Utility ──────────────────────────────────────────────── */
 .mt-8 { margin-top: 8px; }
 .mt-12 { margin-top: 12px; }

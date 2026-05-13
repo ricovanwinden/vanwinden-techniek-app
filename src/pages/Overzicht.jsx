@@ -113,42 +113,66 @@ export default function Overzicht() {
             ))}
           </div>
 
-          {/* Alle werkbonnen */}
+          {/* Alle werkbonnen gegroepeerd per dag */}
           <section className="card">
             <h3>{gefilterdeBons.length} werkbonnen</h3>
             {gefilterdeBons.length === 0 && <p className="geen-bons">Geen resultaten</p>}
-            {gefilterdeBons.map(bon => (
-              <div key={bon.id} className="overzicht-bon">
-                <div className="overzicht-bon-header">
-                  <span className="overzicht-datum">{formatDatum(bon.datum)}</span>
-                  <span className="agenda-badge agenda-badge-bon">{bon.medewerker}</span>
-                </div>
-                {(bon.projectnummer || bon.werkbonnummer) && (
-                  <div className="overzicht-bon-nummers">
-                    {bon.projectnummer && <span className="bon-nr-badge">📋 {bon.projectnummer}</span>}
-                    {bon.werkbonnummer && <span className="bon-nr-badge bon-nr-wo">{bon.werkbonnummer}</span>}
+            {Object.entries(
+              gefilterdeBons.reduce((acc, bon) => {
+                if (!acc[bon.datum]) acc[bon.datum] = []
+                acc[bon.datum].push(bon)
+                return acc
+              }, {})
+            )
+              .sort(([a], [b]) => b.localeCompare(a))
+              .map(([datum, dagBons]) => {
+                const dagUren = dagBons.reduce((s, b) => s + (b.uren || 0), 0)
+                const dagKm = dagBons.reduce((s, b) => s + (b.kmTotaal || 0), 0)
+                return (
+                  <div key={datum} className="dag-groep">
+                    <div className="dag-groep-header">
+                      <span className="dag-groep-datum">{formatDatum(datum)}</span>
+                      <div className="dag-groep-totalen">
+                        <span><strong>{dagUren.toFixed(1)}</strong> uur</span>
+                        <span><strong>{dagBons.length}</strong> {dagBons.length === 1 ? 'bon' : 'bons'}</span>
+                        {dagKm > 0 && <span><strong>{dagKm}</strong> km</span>}
+                      </div>
+                    </div>
+                    {dagBons.map(bon => (
+                      <div key={bon.id} className="overzicht-bon">
+                        <div className="overzicht-bon-header">
+                          <span className="agenda-badge agenda-badge-bon">{bon.medewerker}</span>
+                          {(bon.projectnummer || bon.werkbonnummer) && (
+                            <div className="overzicht-bon-nummers" style={{ margin: 0 }}>
+                              {bon.projectnummer && <span className="bon-nr-badge">📋 {bon.projectnummer}</span>}
+                              {bon.werkbonnummer && <span className="bon-nr-badge bon-nr-wo">{bon.werkbonnummer}</span>}
+                            </div>
+                          )}
+                        </div>
+                        {bon.klant && <div className="overzicht-bon-titel">{bon.klant}</div>}
+                        <div className="overzicht-bon-detail">
+                          <span>{(bon.uren || 0).toFixed(1)} uur</span>
+                          {bon.kmTotaal > 0 && (
+                            <span>{bon.kmTotaal} km{bon.privaatVoertuig ? ' 🚗' : ' 🏢'}</span>
+                          )}
+                        </div>
+                        {bon.omschrijving && <p className="overzicht-omschrijving">{bon.omschrijving}</p>}
+                        {verwijderBevestig === bon.id
+                          ? <BevestigVerwijder
+                              onJa={() => { verwijderBon(bon.id); setVerwijderBevestig(null) }}
+                              onNee={() => setVerwijderBevestig(null)}
+                            />
+                          : <button className="btn btn-ghost btn-sm mt-8" style={{ color: 'var(--danger)' }}
+                              onClick={() => setVerwijderBevestig(bon.id)}>
+                              Verwijder
+                            </button>
+                        }
+                      </div>
+                    ))}
                   </div>
-                )}
-                <div className="overzicht-bon-titel">{bon.klant}</div>
-                <div className="overzicht-bon-detail">
-                  <span>{(bon.uren || 0).toFixed(1)} uur</span>
-                  {bon.kmTotaal > 0 && (
-                    <span>{bon.kmTotaal} km{bon.privaatVoertuig ? ' 🚗' : ' 🏢'}</span>
-                  )}
-                </div>
-                {bon.omschrijving && <p className="overzicht-omschrijving">{bon.omschrijving}</p>}
-                {verwijderBevestig === bon.id
-                  ? <BevestigVerwijder
-                      onJa={() => { verwijderBon(bon.id); setVerwijderBevestig(null) }}
-                      onNee={() => setVerwijderBevestig(null)}
-                    />
-                  : <button className="btn btn-ghost btn-sm mt-8" style={{ color: 'var(--danger)' }}
-                      onClick={() => setVerwijderBevestig(bon.id)}>
-                      Verwijder
-                    </button>
-                }
-              </div>
-            ))}
+                )
+              })
+            }
           </section>
         </>
       )}

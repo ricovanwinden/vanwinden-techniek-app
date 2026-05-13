@@ -89,6 +89,11 @@ export default function NieuweBon() {
   const uren = berekenUren(startTijd, eindTijd, pauze)
   const kmTotaal = Number(kilometers) || 0
 
+  const ontbrekend = [
+    !klant.trim() && 'Klant / Project',
+    !omschrijving.trim() && 'Omschrijving',
+  ].filter(Boolean)
+
   function laadWerkbonDoc(e) {
     const file = e.target.files[0]
     if (!file) return
@@ -275,7 +280,12 @@ export default function NieuweBon() {
 
       <div className="submit-area">
         {opgeslagen && <p className="success-msg">✓ Werkbon opgeslagen!</p>}
-        <button className="btn btn-primary btn-large" onClick={opslaan} disabled={!klant.trim()}>
+        {!opgeslagen && ontbrekend.length > 0 && (
+          <p className="validatie-waarschuwing">
+            Nog niet ingevuld: {ontbrekend.join(', ')}
+          </p>
+        )}
+        <button className="btn btn-primary btn-large" onClick={opslaan}>
           Werkbon opslaan
         </button>
       </div>
