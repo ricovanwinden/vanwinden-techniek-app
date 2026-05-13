@@ -1,6 +1,16 @@
 import { useState } from 'react'
 import { useWerkbonnen } from '../hooks/useWerkbonnen'
 
+function BevestigVerwijder({ onJa, onNee }) {
+  return (
+    <div className="verwijder-bevestig">
+      <span>Zeker weten?</span>
+      <button className="btn btn-sm" style={{ background: 'var(--danger)', color: 'white' }} onClick={onJa}>Ja, verwijder</button>
+      <button className="btn btn-ghost btn-sm" onClick={onNee}>Annuleer</button>
+    </div>
+  )
+}
+
 const OWNER_PASS = import.meta.env.VITE_OWNER_PASSWORD || 'vwt2026'
 
 function formatDatum(d) {
@@ -8,11 +18,12 @@ function formatDatum(d) {
 }
 
 export default function Overzicht() {
-  const { bons, laden } = useWerkbonnen()
+  const { bons, laden, verwijderBon } = useWerkbonnen()
   const [ingelogd, setIngelogd] = useState(false)
   const [wachtwoord, setWachtwoord] = useState('')
   const [fout, setFout] = useState(false)
   const [filter, setFilter] = useState('alles')
+  const [verwijderBevestig, setVerwijderBevestig] = useState(null)
 
   function login() {
     if (wachtwoord === OWNER_PASS) { setIngelogd(true); setFout(false) }
@@ -126,6 +137,16 @@ export default function Overzicht() {
                   )}
                 </div>
                 {bon.omschrijving && <p className="overzicht-omschrijving">{bon.omschrijving}</p>}
+                {verwijderBevestig === bon.id
+                  ? <BevestigVerwijder
+                      onJa={() => { verwijderBon(bon.id); setVerwijderBevestig(null) }}
+                      onNee={() => setVerwijderBevestig(null)}
+                    />
+                  : <button className="btn btn-ghost btn-sm mt-8" style={{ color: 'var(--danger)' }}
+                      onClick={() => setVerwijderBevestig(bon.id)}>
+                      Verwijder
+                    </button>
+                }
               </div>
             ))}
           </section>
