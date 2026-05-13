@@ -82,9 +82,11 @@ export default function Planning() {
       setUitlezen(true)
       try {
         const result = await leesUitMetAI(base64, file.type)
-        const medewerker = result.medewerker || TEAMLEDEN[0]
-        // Normalize medewerker name to known team members
-        const match = TEAMLEDEN.find(t => t.toLowerCase() === medewerker.toLowerCase()) || medewerker
+        const medewerker = result.medewerker || ''
+        // Match op voornaam: "Gurkan Soydemir" → "Gurkan"
+        const match = TEAMLEDEN.find(t =>
+          medewerker.toLowerCase().includes(t.toLowerCase())
+        ) || TEAMLEDEN[0]
         setExtractedMedewerker(match)
         setExtractedItems((result.items || []).map((item, i) => ({ ...item, id: i, medewerker: match, geselecteerd: true })))
         setUitgelezen(true)
