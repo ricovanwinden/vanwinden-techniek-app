@@ -1,0 +1,132 @@
+import { useState } from 'react'
+import { useWerkbonnen } from '../hooks/useWerkbonnen'
+
+const OWNER_PASS = import.meta.env.VITE_OWNER_PASSWORD || 'vwt2026'
+
+function formatDatum(d) {
+  return new Date(d).toLocaleDateString('nl-NL', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+export default function Overzicht() {
+  const { bons, laden } = useWerkbonnen()
+  const [ingelogd, setIngelogd] = useState(false)
+  const [wachtwoord, setWachtwoord] = useState('')
+  const [fout, setFout] = useState(false)
+  const [filter, setFilter] = useState('alles')
+
+  function login() {
+    if (wachtwoord === OWNER_PASS) { setIngelogd(true); setFout(false) }
+    else setFout(true)
+  }
+
+  if (!ingelogd) {
+    return (
+      <div className="page">
+        <h2 className="page-title">Eigenaar overzicht</h2>
+        <div className="card">
+          <h3>Inloggen</h3>
+          <div className="field">
+            <label className="field-label">Wachtwoord</label>
+            <input
+              type="password"
+              value={wachtwoord}
+              onChange={e => setWachtwoord(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && login()}
+              placeholder="Wachtwoord"
+              autoFocus
+            />
+          </div>
+          {fout && <p style={{ color: 'var(--danger)', fontSize: 14, marginTop: 8 }}>Verkeerd wachtwoord</p>}
+          <div className="mt-12">
+            <button className="btn btn-primary btn-large" onClick={login}>Inloggen</button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const gefilterdeBons = filter === 'alles' ? bons : bons.filter(b => b.medewerker === filter)
+
+  const medewerkers = [...new Set(bons.map(b => b.medewerker))]
+
+  const totalen = medewerkers.map(naam => {
+    const mb = bons.filter(b => b.medewerker === naam)
+    return {
+      naam,
+      uren: mb.reduce((s, b) => s + (b.uren || 0), 0),
+      km: mb.reduce((s, b) => s + (b.kmTotaal || 0), 0),
+      privaatKm: mb.filter(b => b.privaatVoertuig).reduce((s, b) => s + (b.kmTotaal || 0), 0),
+      bons: mb.length,
+    }
+  })
+
+  return (
+    <div className="page">
+      <div className="overzicht-header">
+        <h2 className="page-title">Overzicht</h2>
+        <button className="btn btn-ghost btn-sm" onClick={() => setIngelogd(false)}>Uitloggen</button>
+      </div>
+
+      {laden ? (
+        <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: 32 }}>Laden…</p>
+      ) : (
+        <>
+          {/* Totalen per medewerker */}
+          <section className="card">
+            <h3>Totalen</h3>
+            {totalen.length === 0 && <p className="geen-bons">Nog geen werkbonnen</p>}
+            {totalen.map(t => (
+              <div key={t.naam} className="overzicht-totaal-rij">
+                <span className="overzicht-naam">{t.naam}</span>
+                <div className="overzicht-cijfers">
+                  <span><strong>{t.uren.toFixed(1)}</strong> uur</span>
+                  <span><strong>{t.bons}</strong> bons</span>
+                  <span><strong>{t.km}</strong> km</span>
+                  {t.privaatKm > 0 && (
+                    <span className="priv-badge">🚗 {t.privaatKm} km privé</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </section>
+
+          {/* Filter */}
+          <div className="overzicht-filter">
+            <button className={`btn btn-sm ${filter === 'alles' ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setFilter('alles')}>
+              Iedereen
+            </button>
+            {medewerkers.map(m => (
+              <button key={m} className={`btn btn-sm ${filter === m ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setFilter(m)}>
+                {m}
+              </button>
+            ))}
+          </div>
+
+          {/* Alle werkbonnen */}
+          <section className="card">
+            <h3>{gefilterdeBons.length} werkbonnen</h3>
+            {gefilterdeBons.length === 0 && <p className="geen-bons">Geen resultaten</p>}
+            {gefilterdeBons.map(bon => (
+              <div key={bon.id} className="overzicht-bon">
+                <div className="overzicht-bon-header">
+                  <span className="overzicht-datum">{formatDatum(bon.datum)}</span>
+                  <span className="agenda-badge agenda-badge-bon">{bon.medewerker}</span>
+                </div>
+                <div className="overzicht-bon-titel">{bon.klant}</div>
+                <div className="overzicht-bon-detail">
+                  {bon.projectnummer && <span>#{bon.projectnummer}</span>}
+                  {bon.werkbonnummer && <span>WB: {bon.werkbonnummer}</span>}
+                  <span>{(bon.uren || 0).toFixed(1)} uur</span>
+                  {bon.kmTotaal > 0 && (
+                    <span>{bon.kmTotaal} km{bon.privaatVoertuig ? ' 🚗' : ''}</span>
+                  )}
+                </div>
+                {bon.omschrijving && <p className="overzicht-omschrijving">{bon.omschrijving}</p>}
+              </div>
+            ))}
+          </section>
+        </>
+      )}
+    </div>
+  )
+}
