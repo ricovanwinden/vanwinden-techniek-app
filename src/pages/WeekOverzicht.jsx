@@ -28,7 +28,7 @@ function dagLabel(d) {
 const LEEG_ITEM = { medewerker: TEAMLEDEN[0], tijd: '', omschrijving: '' }
 
 export default function WeekOverzicht() {
-  const { agendaItems, voegAgendaItemToe, verwijderAgendaItem } = useWerkbonnen()
+  const { agendaItems, planningItems, voegAgendaItemToe, verwijderAgendaItem } = useWerkbonnen()
   const [weekStart, setWeekStart] = useState(() => getMaandag(new Date()))
   const [toevoegenDag, setToevoegenDag] = useState(null)
   const [nieuwItem, setNieuwItem] = useState(LEEG_ITEM)
@@ -87,7 +87,9 @@ export default function WeekOverzicht() {
             .filter(a => a.datum === dagStr)
             .sort((a, b) => (a.tijd || '99:99').localeCompare(b.tijd || '99:99'))
 
-          const totaal = dagAgenda.length
+          const dagPlanning = planningItems.filter(p => p.datum === dagStr)
+
+          const totaal = dagAgenda.length + dagPlanning.length
 
           return (
             <div key={dagStr} className={['dag-kaart', isVandaag ? 'vandaag' : '', totaal === 0 && !isOpen ? 'leeg' : ''].join(' ')}>
@@ -111,6 +113,18 @@ export default function WeekOverzicht() {
                   <div className="agenda-item-right">
                     <span className="agenda-badge">{item.medewerker}</span>
                     <button className="agenda-delete" onClick={() => verwijderAgendaItem(item.id)}>×</button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Planning items van die dag */}
+              {dagPlanning.map(item => (
+                <div key={item.id} className="agenda-item" style={{ borderLeft: '3px solid var(--primary)' }}>
+                  <div className="agenda-item-left">
+                    <span className="agenda-omschrijving">🗓️ {item.omschrijving || 'Planning'}</span>
+                  </div>
+                  <div className="agenda-item-right">
+                    <span className="agenda-badge">{item.medewerker}</span>
                   </div>
                 </div>
               ))}
