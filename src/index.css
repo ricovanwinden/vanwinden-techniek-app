@@ -1,0 +1,647 @@
+/* ── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Base ─────────────────────────────────────────────────── */
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --primary-light: #eff6ff;
+  --primary-text: #1d4ed8;
+  --bg: #f0f2f5;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --text: #1a1a2e;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --success: #16a34a;
+  --danger: #ef4444;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+}
+
+body {
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── App Shell ────────────────────────────────────────────── */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ── Topbar ───────────────────────────────────────────────── */
+.topbar {
+  background: #1e293b;
+  color: white;
+  padding: 14px 20px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.topbar h1 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+/* ── Main Content ─────────────────────────────────────────── */
+.content {
+  flex: 1;
+  padding: 20px 16px 90px;
+  overflow-y: auto;
+}
+
+/* ── Bottom Navigation ────────────────────────────────────── */
+.bottomnav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 6px 12px;
+  gap: 3px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+
+.nav-item.active { color: var(--primary); }
+
+.nav-icon { font-size: 22px; line-height: 1; }
+
+/* ── Page ─────────────────────────────────────────────────── */
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #1e293b;
+  letter-spacing: -0.5px;
+}
+
+/* ── Cards ────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+}
+
+.card h3 {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 14px;
+}
+
+/* ── Form Elements ────────────────────────────────────────── */
+.field { margin-bottom: 12px; }
+.field:last-of-type { margin-bottom: 0; }
+
+.field label,
+label.field-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="time"],
+input[type="number"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 16px;
+  color: var(--text);
+  background: var(--surface);
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+textarea { resize: vertical; }
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+/* ── Row Grid ─────────────────────────────────────────────── */
+.row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-primary:disabled { background: #93c5fd; cursor: not-allowed; }
+
+.btn-ghost {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1.5px solid var(--border);
+}
+
+.btn-ghost:hover { background: var(--border); }
+
+.btn-sm { padding: 8px 13px; font-size: 13px; }
+
+.btn-large {
+  width: 100%;
+  padding: 16px;
+  font-size: 17px;
+  border-radius: var(--radius);
+  letter-spacing: -0.2px;
+}
+
+/* ── Snelkeuze ────────────────────────────────────────────── */
+.snelkeuze {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+/* ── Uren Totaal ──────────────────────────────────────────── */
+.uren-totaal {
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  margin-top: 14px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-text);
+  letter-spacing: -1px;
+}
+
+.uren-totaal span {
+  font-size: 16px;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+/* ── Toggle Row ───────────────────────────────────────────── */
+.toggle-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.toggle input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--primary);
+  flex-shrink: 0;
+}
+
+/* ── KM Info ──────────────────────────────────────────────── */
+.km-totaal {
+  margin-top: 12px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  background: #f9fafb;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Foto Grid ────────────────────────────────────────────── */
+.foto-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.foto-item {
+  position: relative;
+  aspect-ratio: 1;
+}
+
+.foto-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.foto-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: rgba(0,0,0,0.65);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+/* ── Submit Area ──────────────────────────────────────────── */
+.submit-area {
+  padding: 4px 0 20px;
+}
+
+.success-msg {
+  color: var(--success);
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 16px;
+  padding: 12px;
+  background: #f0fdf4;
+  border-radius: var(--radius-sm);
+}
+
+.required { color: var(--danger); }
+
+/* ── Week Overview ────────────────────────────────────────── */
+.week-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 8px;
+}
+
+.week-label {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.week-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.stat-block {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px 8px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.stat-value {
+  display: block;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Dag Kaarten ──────────────────────────────────────────── */
+.dag-lijst {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dag-kaart {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+  border-left: 3px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.dag-kaart.vandaag { border-left-color: var(--primary); }
+.dag-kaart.leeg { opacity: 0.55; }
+
+.dag-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.dag-naam {
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: capitalize;
+}
+
+.dag-badge {
+  background: var(--primary-light);
+  color: var(--primary-text);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+.bon-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  padding: 5px 0;
+  border-top: 1px solid #f3f4f6;
+}
+
+.bon-klant { font-weight: 600; color: var(--text); }
+.bon-medewerker { color: var(--text-secondary); }
+
+.geen-bons {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Team ─────────────────────────────────────────────────── */
+.team-lijst {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.team-kaart {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--shadow);
+}
+
+.team-avatar {
+  width: 50px;
+  height: 50px;
+  background: var(--primary-light);
+  color: var(--primary-text);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.team-info { flex: 1; }
+
+.team-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.team-stats {
+  display: flex;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.team-stats span::before {
+  content: '';
+}
+
+/* ── Agenda ───────────────────────────────────────────────── */
+.agenda-plus {
+  padding: 2px 12px;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+.agenda-plus.active {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.agenda-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  border-top: 1px solid #f3f4f6;
+  gap: 8px;
+}
+
+.agenda-item-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.agenda-item-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.agenda-tijd {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  flex-shrink: 0;
+  min-width: 38px;
+}
+
+.agenda-omschrijving {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agenda-projectnr {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: 4px;
+}
+
+.agenda-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary-text);
+  background: var(--primary-light);
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.agenda-badge-bon {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.agenda-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.agenda-delete:hover { color: var(--danger); }
+
+.agenda-bon {
+  background: #fafafa;
+  border-radius: 6px;
+  padding: 7px 8px !important;
+  margin: 2px 0;
+  border-top: none !important;
+}
+
+.agenda-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+  margin-top: 8px;
+}
+
+.agenda-form select,
+.agenda-form input[type="time"],
+.agenda-form input[type="text"] {
+  padding: 10px 12px;
+  font-size: 15px;
+}
+
+.agenda-form-btns {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Werkbon doc ──────────────────────────────────────────── */
+.werkbon-doc {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.werkbon-naam {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.werkbon-acties {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.uitgelezen-msg {
+  font-size: 13px;
+  color: var(--success);
+  font-weight: 600;
+}
+
+/* ── Utility ──────────────────────────────────────────────── */
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
