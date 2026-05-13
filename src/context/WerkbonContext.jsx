@@ -118,12 +118,13 @@ export function WerkbonProvider({ children }) {
   }
 
   async function voegPlanningItemToe(item) {
-    const { data } = await supabase.from('planning_items').insert([{
+    const { data, error } = await supabase.from('planning_items').insert([{
       datum: item.datum,
       medewerker: item.medewerker,
       omschrijving: item.omschrijving || null,
       afbeelding: item.afbeelding || null,
     }]).select()
+    if (error) throw new Error(error.message)
     if (data) setPlanningItems(prev => [data[0], ...prev])
   }
 

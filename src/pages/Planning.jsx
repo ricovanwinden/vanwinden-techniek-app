@@ -110,14 +110,19 @@ export default function Planning() {
 
   async function slaAllesOp() {
     setOpslaan(true)
-    const geselecteerd = extractedItems.filter(i => i.geselecteerd && i.datum)
-    for (const item of geselecteerd) {
-      await voegPlanningItemToe({ datum: item.datum, medewerker: item.medewerker, omschrijving: item.omschrijving })
+    try {
+      const geselecteerd = extractedItems.filter(i => i.geselecteerd && i.datum)
+      for (const item of geselecteerd) {
+        await voegPlanningItemToe({ datum: item.datum, medewerker: item.medewerker, omschrijving: item.omschrijving })
+      }
+      setAfbeelding(null)
+      setExtractedItems([])
+      setUitgelezen(false)
+    } catch (err) {
+      alert(`Opslaan mislukt: ${err.message}\n\nHeb je de planning_items tabel aangemaakt in Supabase?`)
+    } finally {
+      setOpslaan(false)
     }
-    setAfbeelding(null)
-    setExtractedItems([])
-    setUitgelezen(false)
-    setOpslaan(false)
   }
 
   const geselecteerdAantal = extractedItems.filter(i => i.geselecteerd).length
