@@ -56,11 +56,13 @@ body {
 }
 
 .topbar-logo {
-  height: 32px;
-  width: 32px;
-  object-fit: contain;
+  height: 36px;
+  width: 36px;
+  object-fit: cover;
+  object-position: center 15%;
   border-radius: 50%;
   flex-shrink: 0;
+  background: white;
 }
 
 .topbar h1 {

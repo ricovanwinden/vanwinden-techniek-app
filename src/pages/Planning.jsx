@@ -88,7 +88,14 @@ export default function Planning() {
           medewerker.toLowerCase().includes(t.toLowerCase())
         ) || TEAMLEDEN[0]
         setExtractedMedewerker(match)
-        setExtractedItems((result.items || []).map((item, i) => ({ ...item, id: i, medewerker: match, geselecteerd: true })))
+        setExtractedItems((result.items || []).map((item, i) => {
+          const bestaatAl = planningItems.some(p =>
+            p.datum === item.datum &&
+            p.medewerker?.toLowerCase() === match.toLowerCase() &&
+            p.omschrijving?.toLowerCase().trim() === (item.omschrijving || '').toLowerCase().trim()
+          )
+          return { ...item, id: i, medewerker: match, geselecteerd: !bestaatAl, bestaatAl }
+        }))
         setUitgelezen(true)
       } catch (err) {
         alert(`Uitlezen mislukt: ${err.message}`)
@@ -150,23 +157,29 @@ export default function Planning() {
 
         {uitgelezen && extractedItems.length > 0 && (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontSize: 14, color: 'var(--text-muted)' }}>
-                ✓ {extractedItems.length} items gevonden voor <strong>{extractedMedewerker}</strong>
+                ✓ {extractedItems.length} items voor <strong>{extractedMedewerker}</strong>
               </span>
               <button className="btn btn-ghost btn-sm" onClick={() => { setAfbeelding(null); setExtractedItems([]); setUitgelezen(false) }}>
                 Annuleer
               </button>
             </div>
 
+            {extractedItems.some(i => i.bestaatAl) && (
+              <p style={{ fontSize: 13, color: '#92400e', background: '#fef3c7', borderRadius: 8, padding: '8px 12px', marginBottom: 10 }}>
+                ⚠️ {extractedItems.filter(i => i.bestaatAl).length} items staan al in de agenda en zijn uitgevinkt.
+              </p>
+            )}
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16, maxHeight: 400, overflowY: 'auto' }}>
               {extractedItems.map(item => (
                 <div key={item.id} style={{
                   display: 'flex', gap: 8, alignItems: 'flex-start',
                   padding: '8px 10px', borderRadius: 8,
-                  background: item.geselecteerd ? 'var(--bg)' : 'transparent',
-                  opacity: item.geselecteerd ? 1 : 0.4,
-                  border: '1px solid var(--border)'
+                  background: item.bestaatAl ? '#fef9ec' : item.geselecteerd ? 'var(--bg)' : 'transparent',
+                  opacity: item.geselecteerd ? 1 : 0.45,
+                  border: `1px solid ${item.bestaatAl ? '#fcd34d' : 'var(--border)'}`
                 }}>
                   <input
                     type="checkbox"
@@ -175,6 +188,11 @@ export default function Planning() {
                     style={{ marginTop: 3, flexShrink: 0 }}
                   />
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {item.bestaatAl && (
+                      <span style={{ fontSize: 11, fontWeight: 700, color: '#92400e', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Al in agenda
+                      </span>
+                    )}
                     <input
                       type="date"
                       value={item.datum}
