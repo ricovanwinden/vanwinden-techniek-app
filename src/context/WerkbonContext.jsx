@@ -31,6 +31,7 @@ function bonVanDB(row) {
 export function WerkbonProvider({ children }) {
   const [bons, setBons] = useState([])
   const [agendaItems, setAgendaItems] = useState([])
+  const [planningItems, setPlanningItems] = useState([])
   const [laden, setLaden] = useState(true)
 
   async function laadBons() {
@@ -43,8 +44,13 @@ export function WerkbonProvider({ children }) {
     if (data) setAgendaItems(data)
   }
 
+  async function laadPlanning() {
+    const { data } = await supabase.from('planning_items').select('*').order('datum', { ascending: false })
+    if (data) setPlanningItems(data)
+  }
+
   useEffect(() => {
-    Promise.all([laadBons(), laadAgenda()]).finally(() => setLaden(false))
+    Promise.all([laadBons(), laadAgenda(), laadPlanning()]).finally(() => setLaden(false))
 
     const agendaSub = supabase
       .channel('agenda_realtime')
@@ -56,9 +62,15 @@ export function WerkbonProvider({ children }) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'werkbonnen' }, laadBons)
       .subscribe()
 
+    const planningSub = supabase
+      .channel('planning_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'planning_items' }, laadPlanning)
+      .subscribe()
+
     return () => {
       supabase.removeChannel(agendaSub)
       supabase.removeChannel(bonSub)
+      supabase.removeChannel(planningSub)
     }
   }, [])
 
@@ -105,11 +117,27 @@ export function WerkbonProvider({ children }) {
     setAgendaItems(prev => prev.filter(a => a.id !== id))
   }
 
+  async function voegPlanningItemToe(item) {
+    const { data } = await supabase.from('planning_items').insert([{
+      datum: item.datum,
+      medewerker: item.medewerker,
+      omschrijving: item.omschrijving || null,
+      afbeelding: item.afbeelding || null,
+    }]).select()
+    if (data) setPlanningItems(prev => [data[0], ...prev])
+  }
+
+  async function verwijderPlanningItem(id) {
+    await supabase.from('planning_items').delete().eq('id', id)
+    setPlanningItems(prev => prev.filter(p => p.id !== id))
+  }
+
   return (
     <WerkbonContext.Provider value={{
-      bons, agendaItems, laden,
+      bons, agendaItems, planningItems, laden,
       voegBonToe, verwijderBon,
       voegAgendaItemToe, verwijderAgendaItem,
+      voegPlanningItemToe, verwijderPlanningItem,
     }}>
       {children}
     </WerkbonContext.Provider>

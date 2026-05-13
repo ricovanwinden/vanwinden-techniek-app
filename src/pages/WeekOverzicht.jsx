@@ -28,7 +28,7 @@ function dagLabel(d) {
 const LEEG_ITEM = { medewerker: TEAMLEDEN[0], tijd: '', omschrijving: '' }
 
 export default function WeekOverzicht() {
-  const { bons, agendaItems, voegAgendaItemToe, verwijderAgendaItem } = useWerkbonnen()
+  const { agendaItems, voegAgendaItemToe, verwijderAgendaItem } = useWerkbonnen()
   const [weekStart, setWeekStart] = useState(() => getMaandag(new Date()))
   const [toevoegenDag, setToevoegenDag] = useState(null)
   const [nieuwItem, setNieuwItem] = useState(LEEG_ITEM)
@@ -87,11 +87,7 @@ export default function WeekOverzicht() {
             .filter(a => a.datum === dagStr)
             .sort((a, b) => (a.tijd || '99:99').localeCompare(b.tijd || '99:99'))
 
-          const dagBons = bons
-            .filter(b => b.datum === dagStr)
-            .sort((a, b) => (a.startTijd || '').localeCompare(b.startTijd || ''))
-
-          const totaal = dagAgenda.length + dagBons.length
+          const totaal = dagAgenda.length
 
           return (
             <div key={dagStr} className={['dag-kaart', isVandaag ? 'vandaag' : '', totaal === 0 && !isOpen ? 'leeg' : ''].join(' ')}>
@@ -115,22 +111,6 @@ export default function WeekOverzicht() {
                   <div className="agenda-item-right">
                     <span className="agenda-badge">{item.medewerker}</span>
                     <button className="agenda-delete" onClick={() => verwijderAgendaItem(item.id)}>×</button>
-                  </div>
-                </div>
-              ))}
-
-              {/* Werkbonnen van die dag */}
-              {dagBons.map(bon => (
-                <div key={bon.id} className="agenda-item agenda-bon">
-                  <div className="agenda-item-left">
-                    {bon.startTijd && <span className="agenda-tijd">{bon.startTijd}</span>}
-                    <span className="agenda-omschrijving">
-                      📋 {bon.klant}
-                      {bon.projectnummer && <span className="agenda-projectnr"> #{bon.projectnummer}</span>}
-                    </span>
-                  </div>
-                  <div className="agenda-item-right">
-                    <span className="agenda-badge agenda-badge-bon">{bon.medewerker}</span>
                   </div>
                 </div>
               ))}
