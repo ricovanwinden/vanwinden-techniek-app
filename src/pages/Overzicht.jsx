@@ -18,7 +18,7 @@ function formatDatum(d) {
 }
 
 export default function Overzicht() {
-  const { bons, laden, verwijderBon, updateBonFactuur } = useWerkbonnen()
+  const { bons, daglijsten, laden, verwijderBon, updateBonFactuur, updateDaglijstFactuur, verwijderDaglijst } = useWerkbonnen()
   const [ingelogd, setIngelogd] = useState(false)
   const [wachtwoord, setWachtwoord] = useState('')
   const [fout, setFout] = useState(false)
@@ -112,6 +112,49 @@ export default function Overzicht() {
               </button>
             ))}
           </div>
+
+          {/* Daglijsten */}
+          <section className="card">
+            <h3>Daglijsten ({daglijsten.length})</h3>
+            {daglijsten.length === 0 && <p className="geen-bons">Nog geen daglijsten ingediend</p>}
+            {daglijsten.map(dag => {
+              const bonnen = dag.bonnen || []
+              return (
+                <div key={dag.id} style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: 16, marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a' }}>
+                        {dag.medewerker} — {formatDatum(dag.datum)}
+                      </div>
+                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>
+                        {bonnen.length} bon{bonnen.length !== 1 ? 'nen' : ''} · {dag.kilometers || 0} km
+                      </div>
+                    </div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: dag.factuur_gestuurd ? '#166534' : '#64748b' }}>
+                      <input
+                        type="checkbox"
+                        checked={dag.factuur_gestuurd || false}
+                        onChange={e => updateDaglijstFactuur(dag.id, e.target.checked)}
+                      />
+                      Factuur gestuurd
+                    </label>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: dag.notities ? 8 : 0 }}>
+                    {bonnen.map((bon, i) => (
+                      <span key={i} style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 6, padding: '3px 10px', fontSize: 12, fontFamily: 'monospace', fontWeight: 600 }}>
+                        {[bon.projectcode, bon.wonummer].filter(Boolean).join(' / ')}
+                      </span>
+                    ))}
+                  </div>
+                  {dag.notities && <p style={{ fontSize: 13, color: '#475569', margin: '6px 0 0', fontStyle: 'italic' }}>{dag.notities}</p>}
+                  <button className="btn btn-ghost btn-sm mt-8" style={{ color: 'var(--danger)', marginTop: 8 }}
+                    onClick={() => { if (confirm('Daglijst verwijderen?')) verwijderDaglijst(dag.id) }}>
+                    Verwijder
+                  </button>
+                </div>
+              )
+            })}
+          </section>
 
           {/* Alle werkbonnen gegroepeerd per dag */}
           <section className="card">

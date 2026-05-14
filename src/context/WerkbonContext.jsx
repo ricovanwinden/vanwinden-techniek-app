@@ -34,6 +34,7 @@ export function WerkbonProvider({ children }) {
   const [bons, setBons] = useState([])
   const [agendaItems, setAgendaItems] = useState([])
   const [planningItems, setPlanningItems] = useState([])
+  const [daglijsten, setDaglijsten] = useState([])
   const [laden, setLaden] = useState(true)
 
   async function laadBons() {
@@ -51,8 +52,18 @@ export function WerkbonProvider({ children }) {
     if (data) setPlanningItems(data)
   }
 
+  async function laadDaglijsten() {
+    const { data } = await supabase.from('daglijsten').select('*').order('datum', { ascending: false })
+    if (data) setDaglijsten(data)
+  }
+
   useEffect(() => {
-    Promise.all([laadBons(), laadAgenda(), laadPlanning()]).finally(() => setLaden(false))
+    Promise.all([laadBons(), laadAgenda(), laadPlanning(), laadDaglijsten()]).finally(() => setLaden(false))
+
+    const dagSub = supabase
+      .channel('daglijst_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'daglijsten' }, laadDaglijsten)
+      .subscribe()
 
     const agendaSub = supabase
       .channel('agenda_realtime')
@@ -73,6 +84,7 @@ export function WerkbonProvider({ children }) {
       supabase.removeChannel(agendaSub)
       supabase.removeChannel(bonSub)
       supabase.removeChannel(planningSub)
+      supabase.removeChannel(dagSub)
     }
   }, [])
 
@@ -141,12 +153,36 @@ export function WerkbonProvider({ children }) {
     setPlanningItems(prev => prev.filter(p => p.id !== id))
   }
 
+  async function slaagDaglijstOp({ datum, medewerker, bonnen, kilometers, notities }) {
+    const { data, error } = await supabase.from('daglijsten').insert([{
+      datum, medewerker,
+      bonnen: bonnen || [],
+      kilometers: Number(kilometers) || 0,
+      notities: notities || null,
+      factuur_gestuurd: false,
+    }]).select()
+    if (error) throw new Error(error.message)
+    if (data) setDaglijsten(prev => [data[0], ...prev])
+    return data?.[0]
+  }
+
+  async function updateDaglijstFactuur(id, waarde) {
+    await supabase.from('daglijsten').update({ factuur_gestuurd: waarde }).eq('id', id)
+    setDaglijsten(prev => prev.map(d => d.id === id ? { ...d, factuur_gestuurd: waarde } : d))
+  }
+
+  async function verwijderDaglijst(id) {
+    await supabase.from('daglijsten').delete().eq('id', id)
+    setDaglijsten(prev => prev.filter(d => d.id !== id))
+  }
+
   return (
     <WerkbonContext.Provider value={{
-      bons, agendaItems, planningItems, laden,
+      bons, agendaItems, planningItems, daglijsten, laden,
       voegBonToe, verwijderBon, updateBonFactuur,
       voegAgendaItemToe, verwijderAgendaItem,
       voegPlanningItemToe, verwijderPlanningItem,
+      slaagDaglijstOp, updateDaglijstFactuur, verwijderDaglijst,
     }}>
       {children}
     </WerkbonContext.Provider>

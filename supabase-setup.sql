@@ -38,6 +38,22 @@ ALTER TABLE werkbonnen ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "open_agenda" ON agenda_items FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "open_werkbonnen" ON werkbonnen FOR ALL USING (true) WITH CHECK (true);
 
+-- Daglijsten tabel (meerdere werkbonnen per dag per medewerker)
+CREATE TABLE daglijsten (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  datum DATE NOT NULL,
+  medewerker TEXT NOT NULL,
+  bonnen JSONB DEFAULT '[]'::jsonb,
+  kilometers NUMERIC(7,1) DEFAULT 0,
+  notities TEXT,
+  factuur_gestuurd BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE daglijsten ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "open_daglijsten" ON daglijsten FOR ALL USING (true) WITH CHECK (true);
+
 -- Realtime aanzetten
 ALTER PUBLICATION supabase_realtime ADD TABLE agenda_items;
 ALTER PUBLICATION supabase_realtime ADD TABLE werkbonnen;
+ALTER PUBLICATION supabase_realtime ADD TABLE daglijsten;

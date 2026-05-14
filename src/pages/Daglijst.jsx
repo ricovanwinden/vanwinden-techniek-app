@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { TEAMLEDEN } from '../hooks/useWerkbonnen'
+import { useWerkbonnen, TEAMLEDEN } from '../hooks/useWerkbonnen'
 
 function toDateStr(d) {
   return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
@@ -46,12 +46,14 @@ async function scanWerkbon(base64, fileType) {
 }
 
 export default function Daglijst() {
+  const { slaagDaglijstOp } = useWerkbonnen()
   const [medewerker, setMedewerker] = useState(TEAMLEDEN[0])
   const [datum, setDatum] = useState(() => toDateStr(new Date()))
   const [bonnen, setBonnen] = useState([])
   const [kilometers, setKilometers] = useState('')
   const [notities, setNotities] = useState('')
   const [scanBezig, setScanBezig] = useState(false)
+  const [opslaanBezig, setOpslaanBezig] = useState(false)
   const [melding, setMelding] = useState('')
   const [gekopieerd, setGekopieerd] = useState(false)
 
@@ -93,6 +95,22 @@ export default function Daglijst() {
 
   function verwijderBon(id) {
     setBonnen(prev => prev.filter(b => b.id !== id))
+  }
+
+  async function opslaan() {
+    if (bonnen.length === 0) { toonMelding('⚠️ Scan eerst werkbonnen.'); return }
+    setOpslaanBezig(true)
+    toonMelding('Opslaan...', 10000)
+    try {
+      await slaagDaglijstOp({ datum, medewerker, bonnen, kilometers, notities })
+      toonMelding('✅ Daglijst opgeslagen! Eigenaar kan nu factuur maken.')
+      setBonnen([])
+      setKilometers('')
+      setNotities('')
+    } catch (err) {
+      toonMelding(`❌ ${err.message}`)
+    }
+    setOpslaanBezig(false)
   }
 
   function wis() {
@@ -232,8 +250,16 @@ export default function Daglijst() {
       {/* Versturen */}
       {bonnen.length > 0 && (
         <section className="card">
-          <h3>Versturen naar eigenaar</h3>
+          <h3>Opslaan &amp; versturen</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <button
+              className="btn btn-primary btn-large"
+              onClick={opslaan}
+              disabled={opslaanBezig}
+              style={{ background: '#6366f1' }}
+            >
+              {opslaanBezig ? '⏳ Bezig...' : '💾 Opslaan voor eigenaar'}
+            </button>
             <button className="btn btn-primary btn-large" onClick={kopieer}>
               {gekopieerd ? '✅ Gekopieerd!' : '📋 Kopiëren naar klembord'}
             </button>
