@@ -181,7 +181,6 @@ export default function Daglijst() {
           <input
             type="file"
             accept="image/*,application/pdf"
-            capture="environment"
             style={{ display: 'none' }}
             disabled={scanBezig}
             onChange={verwerkBestand}
