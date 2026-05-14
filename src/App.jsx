@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
 import { WerkbonProvider } from './context/WerkbonContext'
-import NieuweBon from './pages/NieuweBon'
 import Daglijst from './pages/Daglijst'
 import WeekOverzicht from './pages/WeekOverzicht'
 import Planning from './pages/Planning'
@@ -19,7 +18,6 @@ export default function App() {
           <main className="content">
             <Routes>
               <Route path="/" element={<Daglijst />} />
-              <Route path="/werkbon" element={<NieuweBon />} />
               <Route path="/week" element={<WeekOverzicht />} />
               <Route path="/planning" element={<Planning />} />
               <Route path="/team" element={<Team />} />
@@ -31,11 +29,7 @@ export default function App() {
               <span className="nav-icon">📋</span>
               <span>Daglijst</span>
             </NavLink>
-            <NavLink to="/werkbon" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-              <span className="nav-icon">📝</span>
-              <span>Werkbon</span>
-            </NavLink>
-            <NavLink to="/week" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+<NavLink to="/week" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
               <span className="nav-icon">📅</span>
               <span>Agenda</span>
             </NavLink>
