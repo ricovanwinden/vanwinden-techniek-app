@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { useWerkbonnen, TEAMLEDEN } from '../hooks/useWerkbonnen'
+import { leesUitMetServer } from '../lib/ai'
 
 const SNELKEUZE = [4, 6, 7.5, 8, 9, 10]
 
@@ -21,40 +22,8 @@ function eindTijdNa(startTijd, uren, pauseMin) {
 }
 
 async function leesUitMetAI(base64, fileType) {
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-  if (!apiKey) throw new Error('Geen API key. Voeg VITE_ANTHROPIC_API_KEY toe aan .env')
-
-  const isPDF = fileType === 'application/pdf'
-  const data = base64.split(',')[1]
-
-  const contentBlock = isPDF
-    ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data } }
-    : { type: 'image', source: { type: 'base64', media_type: fileType, data } }
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 300,
-      messages: [{
-        role: 'user',
-        content: [
-          contentBlock,
-          { type: 'text', text: 'Dit is een werkbon. Zoek de Projectcode en het werkbonnummer (begint vaak met WO). Bijvoorbeeld: "Projectcode : 5095001S WO242131" → projectnummer = "5095001S", werkbonnummer = "WO242131". Antwoord ALLEEN met JSON: {"projectnummer": "...", "werkbonnummer": "..."}. Gebruik null als niet gevonden.' }
-        ]
-      }]
-    })
-  })
-
-  const json = await res.json()
-  if (!res.ok) throw new Error(json.error?.message || 'API fout')
-  const match = (json.content?.[0]?.text || '').match(/\{[\s\S]*?\}/)
+  const text = await leesUitMetServer('werkbon', base64, fileType)
+  const match = text.match(/\{[\s\S]*?\}/)
   return match ? JSON.parse(match[0]) : {}
 }
 

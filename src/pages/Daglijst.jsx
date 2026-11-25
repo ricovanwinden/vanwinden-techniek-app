@@ -1,47 +1,14 @@
 import { useState } from 'react'
 import { useWerkbonnen, TEAMLEDEN } from '../hooks/useWerkbonnen'
+import { leesUitMetServer } from '../lib/ai'
 
 function toDateStr(d) {
   return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-')
 }
 
 async function scanWerkbon(base64, fileType) {
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-  if (!apiKey) throw new Error('Geen API key. Voeg VITE_ANTHROPIC_API_KEY toe aan .env')
-
-  const isPDF = fileType === 'application/pdf'
-  const data = base64.split(',')[1]
-  const contentBlock = isPDF
-    ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data } }
-    : { type: 'image', source: { type: 'base64', media_type: fileType, data } }
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 300,
-      messages: [{
-        role: 'user',
-        content: [
-          contentBlock,
-          {
-            type: 'text',
-            text: 'Dit is een werkbon. Zoek: 1) de projectcode (staat VOOR het WO-nummer, bijv. "S095001S"), 2) het WO-nummer (begint met WO, bijv. "WO242131"), 3) de datum. Antwoord ALLEEN met JSON: {"projectcode": "...", "wonummer": "...", "datum": "YYYY-MM-DD"}. Gebruik lege string als niet gevonden.',
-          }
-        ]
-      }]
-    })
-  })
-
-  const json = await res.json()
-  if (!res.ok) throw new Error(json.error?.message || 'API fout')
-  const match = (json.content?.[0]?.text || '').match(/\{[\s\S]*?\}/)
+  const text = await leesUitMetServer('daglijst', base64, fileType)
+  const match = text.match(/\{[\s\S]*?\}/)
   return match ? JSON.parse(match[0]) : {}
 }
 

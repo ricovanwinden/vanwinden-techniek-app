@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useWerkbonnen, TEAMLEDEN } from '../hooks/useWerkbonnen'
+import { leesUitMetServer } from '../lib/ai'
 
 function formatDatum(d) {
   if (!d) return '—'
@@ -7,52 +8,7 @@ function formatDatum(d) {
 }
 
 async function leesUitMetAI(base64, fileType) {
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-  if (!apiKey) throw new Error('Geen API key. Voeg VITE_ANTHROPIC_API_KEY toe aan .env')
-
-  const data = base64.split(',')[1]
-  const isPDF = fileType === 'application/pdf'
-
-  const contentBlock = isPDF
-    ? { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data } }
-    : { type: 'image', source: { type: 'base64', media_type: fileType, data } }
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 2000,
-      messages: [{
-        role: 'user',
-        content: [
-          contentBlock,
-          {
-            type: 'text',
-            text: `Dit is een week- of maandplanning. Haal ALLE afzonderlijke regels/items op.
-Voor elke regel geef je:
-- datum: in YYYY-MM-DD formaat (datums staan vaak als DD-MM-YYYY)
-- medewerker: de naam van de medewerker (gebruik alleen de voornaam, bijv. "Gurkan" of "Owen")
-- omschrijving: project/locatie naam + eventueel werkbonnummer
-
-Antwoord ALLEEN met JSON in dit formaat:
-{"medewerker": "voornaam", "items": [{"datum": "YYYY-MM-DD", "omschrijving": "..."}, ...]}
-
-Zet geen duplicaten voor dezelfde datum+project combinatie. Converteer DD-MM-YYYY naar YYYY-MM-DD.`
-          }
-        ]
-      }]
-    })
-  })
-
-  const json = await res.json()
-  if (!res.ok) throw new Error(json.error?.message || 'API fout')
-  const text = json.content?.[0]?.text || ''
+  const text = await leesUitMetServer('planning', base64, fileType)
   const match = text.match(/\{[\s\S]*\}/)
   return match ? JSON.parse(match[0]) : {}
 }
